@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>InventoryPro | Dashboard</title><link rel="stylesheet" href="/css/style.css">
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#2563eb"><link rel="icon" href="/icons/icon-192.png">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="brand"><span class="brand-icon" id="brandIcon">🛒</span><div><b id="brandName">InventoryPro</b><small>Smart Stock. Greater Profit.</small></div></div>
+  <nav>
+    <button class="nav-item active" data-page="dashboard">▦ <span>Dashboard</span></button>
+    <button class="nav-item" data-page="products">▣ <span>Products</span></button>
+    <button class="nav-item" data-page="sales">🛒 <span>Sales</span></button>
+    <button class="nav-item" data-page="purchases">📦 <span>Purchases</span></button>
+    <button class="nav-item" data-page="cash">▤ <span>Cash Balance</span></button>
+    <button class="nav-item" data-page="reports">▥ <span>Reports</span></button>
+    <button class="nav-item" data-page="settings">⚙ <span>Settings</span></button>
+  </nav>
+  <div class="sidebar-note"><div>📈</div><b>Grow Your Business</b><span>Manage your inventory with ease.</span></div>
+  <button id="logoutBtn" class="nav-item logout">↪ <span>Logout</span></button>
+</aside>
+<main class="main-area">
+<header class="topbar"><div><span class="location-dot">●</span><b id="shopName">My Shop</b><small id="shopAddress"></small></div><div class="admin"><span id="netBadge" class="net-badge net-ok">● Online</span><span id="userName">Administrator</span> <small id="userRole" class="muted"></small> <span class="avatar" id="userAvatar">A</span></div></header>
+<div class="content">
+<section id="page-dashboard" class="page">
+ <div class="page-heading"><div><h1>Dashboard</h1><p>Welcome back! Here's your business overview.</p></div><span class="date-chip" id="today"></span></div>
+ <div class="summary-grid">
+  <article class="cash-hero"><div class="cash-label">▣ &nbsp; Cash Balance</div><div class="cash-value" id="dashCash">₦0.00</div><div class="cash-actions"><button class="btn green" data-go="cash">＋ Cash In</button><button class="btn amber" data-go="cash">－ Cash Out</button></div></article>
+  <article class="stat-card blue"><span>▣</span><small>Total Products</small><strong id="productCount">0</strong><em>Items in catalogue</em></article>
+  <article class="stat-card green"><span>🛒</span><small>Total Sales</small><strong id="salesTotal">₦0</strong><em>Recorded sales</em></article>
+  <article class="stat-card orange"><span>🚚</span><small>Total Purchases</small><strong id="purchaseTotal">₦0</strong><em>Recorded purchases</em></article>
+ </div>
+ <div class="two-col">
+  <article class="panel"><div class="panel-head"><h2>Inventory Overview</h2><span class="muted">Current stock levels</span></div><div class="overview-stats"><div><strong id="totalStock">0</strong><small>Total units</small></div><div><strong id="lowCount">0</strong><small>Low-stock items</small></div></div><div class="bar-track"><div id="stockBar" class="bar-fill"></div></div><p class="muted small">Low-stock products are at or below their reorder level.</p></article>
+  <article class="panel"><div class="panel-head"><h2>Low Stock Alerts</h2><button class="link-btn" data-go="products">View products →</button></div><div id="lowStockList" class="alert-list"></div></article>
+ </div>
+ <article class="panel"><div class="panel-head"><h2>Recent Cash Transactions</h2><button class="link-btn" data-go="cash">View all →</button></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance after</th><th>Description</th></tr></thead><tbody id="recentCash"></tbody></table></div></article>
+</section>
+
+<section id="page-products" class="page hidden">
+ <div class="page-heading"><div><h1>Products</h1><p>Add, update, search and manage your inventory.</p></div><div class="heading-actions"><button class="btn secondary" id="downloadProductTemplate">Download Excel Template</button><button class="btn secondary" id="importProductsBtn">Import Excel</button><input id="productExcelFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden><button class="btn primary" id="newProductBtn">＋ Add Product</button></div></div>
+ <article class="panel"><p class="muted small">Import an .xlsx file using the template. Existing SKUs are skipped and reported.</p><label class="small"><input type="checkbox" id="importDebit" checked style="width:auto"> Debit cash balance for imported stock (quantity × cost price). Rows are skipped if cash runs out.</label><div id="excelImportResult" class="small muted hidden"></div><div class="toolbar"><input id="productSearch" placeholder="Search product or SKU..."><span id="productTotal" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Product</th><th>SKU</th><th>Category</th><th>Stock</th><th>Cost price</th><th>Selling price</th><th>Action</th></tr></thead><tbody id="productsTable"></tbody></table></div><div class="pager" id="productsPager"></div></article>
+</section>
+
+<section id="page-sales" class="page hidden">
+ <div class="page-heading"><div><h1>Sales</h1><p>Search products, build a cart and complete the sale in one go. Stock decreases and cash balance increases automatically.</p></div></div>
+ <div class="two-col pos-grid">
+  <article class="panel">
+   <h2>Add products to the cart</h2>
+   <div class="search-box"><input id="saleSearch" placeholder="Search product name or SKU..." autocomplete="off"><div id="saleResults" class="search-results hidden"></div></div>
+   <div id="pickPanel" class="pick-panel hidden">
+    <div class="pick-title"><b id="pickName"></b><small id="pickInfo" class="muted"></small></div>
+    <label>Selling price (₦) — you can change it<input id="pickPrice" type="number" min="0.01" step="0.01"></label>
+    <label>Quantity<input id="pickQty" type="number" min="1" value="1"></label>
+    <button class="btn primary" id="pickAdd" type="button">＋ Add to cart</button>
+   </div>
+   <p class="muted small">Start typing to find a product, click it, check the price and quantity, then add it to the cart. Add as many products as you need.</p>
+  </article>
+  <article class="panel">
+   <h2>Cart <span id="cartCount" class="pill">0</span></h2>
+   <div class="table-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Price (₦)</th><th>Total</th><th></th></tr></thead><tbody id="cartTable"></tbody></table></div>
+   <div class="cart-total"><span>Total</span><strong id="cartTotal">₦0.00</strong></div>
+   <div class="form-grid"><label>Customer name (optional)<input id="saleCustomer" placeholder="Walk-in customer" maxlength="120"></label><label>Note (optional)<input id="saleNote" placeholder="Additional details" maxlength="255"></label></div>
+   <label class="small check-line"><input type="checkbox" id="printReceipt"> Print receipt after sale</label>
+   <div class="cart-actions"><button class="btn primary" id="completeSale" type="button">Complete Sale</button><button class="btn secondary" id="clearCart" type="button">Clear cart</button></div>
+  </article>
+ </div>
+ <article class="panel hidden" id="pendingPanel">
+  <div class="panel-head"><h2>Offline sales waiting to upload <span class="pill" id="pendingCount">0</span></h2><button class="btn secondary" id="syncNow" type="button">Upload now</button></div>
+  <p class="muted small">These sales were made without internet and are saved on this device. They upload automatically when the connection returns. Stock and the Cash Balance on the server change only after they upload.</p>
+  <div class="table-wrap"><table><thead><tr><th>Receipt</th><th>Time</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="pendingTable"></tbody></table></div>
+ </article>
+ <article class="panel">
+  <div class="panel-head"><h2>Sales Records</h2></div>
+  <div class="range-bar" id="salesRange"></div>
+  <div class="summary-grid report-grid"><article class="stat-card blue"><small>Sales</small><strong id="hCount">0</strong></article><article class="stat-card green"><small>Revenue</small><strong id="hRevenue">₦0</strong></article><article class="stat-card orange"><small>Profit</small><strong id="hProfit">₦0</strong></article></div>
+  <p class="muted small" id="hLabel"></p>
+  <div class="table-wrap"><table><thead><tr><th>Receipt</th><th>Date</th><th>Items</th><th>Customer</th><th>Total</th><th>Profit</th><th></th></tr></thead><tbody id="salesTable"></tbody></table></div><div class="pager" id="salesPager"></div>
+ </article>
+</section>
+
+<section id="page-purchases" class="page hidden">
+ <div class="page-heading"><div><h1>Purchases</h1><p>Record stock purchases. Stock increases and cash balance decreases automatically.</p></div></div>
+ <article class="panel"><h2>Record a Purchase</h2><form id="purchaseForm" class="form-grid"><label>Product<select name="productId" class="product-select" required></select></label><label>Quantity<input name="quantity" type="number" min="1" value="1" required></label><label>Unit cost price (₦)<input name="unitPrice" type="number" min="0.01" step="0.01" required></label><label>Supplier name (optional)<input name="partyName" placeholder="Supplier"></label><label class="wide">Note (optional)<input name="note" placeholder="Invoice or purchase details"></label><div class="wide"><button class="btn primary">Complete Purchase</button></div></form></article>
+ <article class="panel"><h2>Purchase History</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>Qty</th><th>Unit cost</th><th>Total</th><th>Supplier</th></tr></thead><tbody id="purchasesTable"></tbody></table></div><div class="pager" id="purchasesPager"></div></article>
+</section>
+
+<section id="page-cash" class="page hidden">
+ <div class="page-heading"><div><h1>Cash Balance</h1><p>Manage available cash and review every money movement.</p></div></div>
+ <article class="cash-hero cash-wide"><div class="cash-label">▣ &nbsp; Available Cash Balance</div><div class="cash-value" id="cashBalance">₦0.00</div><p>Cash balance updates automatically when sales and purchases are recorded.</p></article>
+ <div class="two-col">
+  <article class="panel"><h2>Cash In</h2><form id="cashInForm" class="stack-form"><label>Amount (₦)<input name="amount" type="number" min="0.01" step="0.01" required></label><label>Description<input name="description" placeholder="e.g. Additional capital" required></label><button class="btn green">＋ Add Cash</button></form></article>
+  <article class="panel"><h2>Cash Out</h2><form id="cashOutForm" class="stack-form"><label>Amount (₦)<input name="amount" type="number" min="0.01" step="0.01" required></label><label>Description<input name="description" placeholder="e.g. Shop expenses" required></label><button class="btn danger">－ Withdraw Cash</button></form></article>
+ </div>
+ <article class="panel"><div class="panel-head"><h2>Cash Transaction History</h2><button class="btn secondary" id="exportCash">Export CSV</button></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance after</th><th>Description</th></tr></thead><tbody id="cashTable"></tbody></table></div><div class="pager" id="cashPager"></div></article>
+</section>
+
+<section id="page-reports" class="page hidden">
+ <div class="page-heading"><div><h1>Reports</h1><p>Stock value, expected value and profit from sales, with full product details.</p></div><button class="btn primary" id="exportReport">⬇ Export to Excel</button></div>
+ <article class="panel">
+  <h2>Sales period for profit</h2>
+  <div class="range-bar" id="reportRange"></div>
+  <p class="muted small" id="reportLabel"></p>
+ </article>
+ <div class="summary-grid report-grid">
+  <article class="stat-card blue"><small>Total products value (at cost)</small><strong id="rValue">₦0</strong><em id="rUnits">0 units</em></article>
+  <article class="stat-card green"><small>Expected product value (at selling price)</small><strong id="rExpected">₦0</strong><em id="rExpProfit">Expected profit ₦0</em></article>
+  <article class="stat-card orange"><small>Profit made from sales</small><strong id="rProfit">₦0</strong><em id="rSalesLine">0 sales</em></article>
+  <article class="stat-card blue"><small>Sales revenue</small><strong id="rRevenue">₦0</strong><em id="rCost">Cost ₦0</em></article>
+ </div>
+ <article class="panel"><h2>Product details</h2><div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Stock value</th><th>Expected value</th><th>Expected profit</th><th>Units sold</th><th>Sales profit</th></tr></thead><tbody id="reportTable"></tbody></table></div><div class="pager" id="reportPager"></div></article>
+</section>
+
+<section id="page-settings" class="page hidden">
+ <div class="page-heading"><div><h1>Settings</h1><p>Your business details and sales corrections.</p></div></div>
+ <article class="panel">
+  <h2>Business profile</h2>
+  <form id="settingsForm" class="form-grid">
+   <label>Business name<input name="businessName" required maxlength="120"></label>
+   <label>Phone<input name="phone" maxlength="50" placeholder="e.g. 0803 000 0000"></label>
+   <label class="wide">Address<input name="address" maxlength="255" placeholder="Shop address shown on receipts"></label>
+   <div class="wide logo-row"><img id="logoPreview" class="logo-preview hidden" alt="Logo"><div><label>Logo (PNG, JPG, WEBP or GIF)<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label><button type="button" class="btn secondary" id="removeLogo">Remove logo</button></div></div>
+   <div class="wide"><button class="btn primary">Save settings</button></div>
+  </form>
+ </article>
+ <article class="panel">
+  <h2>Users &amp; roles</h2>
+  <p class="muted small"><b>Inventory Admin</b> has full access to every feature. <b>Accountant</b> can only sell products and view sales records.</p>
+  <form id="userForm" class="form-grid"><label>Username<input name="username" required minlength="3" maxlength="50" autocomplete="off"></label><label>Password (at least 8 characters)<input name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password"></label><label>Role<select name="role"><option value="ACCOUNTANT">Accountant</option><option value="ADMIN">Inventory Admin</option></select></label><div class="wide"><button class="btn primary">＋ Add user</button></div></form>
+  <div class="table-wrap"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="usersTable"></tbody></table></div>
+ </article>
+ <article class="panel">
+  <h2>Delete a sale</h2>
+  <p class="muted small">Deleting a sale puts things back as they were before it happened: the sold products return to stock and the sale amount is taken out of cash balance (recorded in the cash history). If cash balance is lower than the sale amount, add cash first.</p>
+  <div class="range-bar" id="settingsRange"></div>
+  <div class="table-wrap"><table><thead><tr><th>Receipt</th><th>Date</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody id="deletableTable"></tbody></table></div><div class="pager" id="deletablePager"></div>
+ </article>
+<article class="panel danger-zone">
+  <h2>Danger zone</h2>
+  <p class="muted small">Erase all products, sales, purchases and the cash history, and set Cash Balance to ₦0. User accounts and your business profile are kept. This cannot be undone.</p>
+  <button class="btn danger" id="openClear" type="button">Clear All Data…</button>
+ </article>
+</section>
+</div>
+</main>
+</div>
+
+<div id="productModal" class="modal hidden"><div class="modal-card"><div class="panel-head"><h2 id="modalTitle">Add Product</h2><button class="icon-btn" id="closeModal">✕</button></div><form id="productForm" class="form-grid"><input type="hidden" name="id"><label>Product name<input name="name" required maxlength="120"></label><label>SKU<input name="sku" required maxlength="50"></label><label>Category<input name="category" required placeholder="e.g. Groceries"></label><label>Quantity<input name="quantity" type="number" min="0" value="0" required></label><label>Reorder level<input name="reorderLevel" type="number" min="0" value="5" required></label><label>Cost price (₦)<input name="costPrice" type="number" min="0" step="0.01" required></label><label>Selling price (₦)<input name="sellingPrice" type="number" min="0" step="0.01" required></label><label id="debitRow" class="wide"><span><input type="checkbox" name="debitCash" checked style="width:auto"> Debit cash balance for this stock (quantity × cost price)</span></label><div class="wide modal-actions"><button type="button" class="btn secondary" id="cancelModal">Cancel</button><button class="btn primary">Save Product</button></div></form></div></div>
+<div id="clearModal" class="modal hidden"><div class="modal-card"><div class="panel-head"><h2>Clear all data</h2><button class="icon-btn" id="closeClear" type="button">✕</button></div>
+<form id="clearForm" class="stack-form"><p>This permanently erases <b>all products, sales, purchases and cash history</b> and sets Cash Balance to ₦0. Users and your business profile are kept. It cannot be undone.</p><label>Type <b>DELETE ALL DATA</b> to confirm<input name="confirmation" autocomplete="off" required></label><label>Your password<input name="password" type="password" required autocomplete="current-password"></label><div class="modal-actions"><button type="button" class="btn secondary" id="cancelClear">Cancel</button><button class="btn danger">Erase everything</button></div></form></div></div>
+<div id="receipt" class="receipt"></div>
+<div id="toast" class="toast"></div>
+<script src="/js/offline.js"></script>
+<script src="/js/app.js"></script>
+</body></html>
